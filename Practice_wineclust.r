@@ -1,0 +1,22 @@
+dat=read.table(file.choose(),sep = ",",header = F)
+colnames(dat)=c("class", "Alcohol","Malic acid","Ash","Alcalinity of ash","Magnesium","Total phenols","Flavanoids","Nonflavanoid phenols","Proanthocyanins","Color intensity","Hue","OD280/OD315 of diluted wines","Proline")
+str(dat)
+table(complete.cases(dat))
+pmatrix=scale(dat[-1])
+d=dist(pmatrix)
+c=hclust(d,method = "ward.D2")
+plot(c)
+rect.hclust(c,k=3)
+groups<-cutree(c,k=3)
+table(dat$class,groups)
+totwinss=c()
+for (k in 2:10) {
+  k_cl=kmeans(pmatrix,k)
+  totwinss[k]<-k_cl$tot.withinss
+}
+plot(1:10,totwinss,xlab = "Number of clusters",ylab = "Total within sum of squares")
+lines(1:10,totwinss)
+k_cl=kmeans(pmatrix,3)
+table(dat$class,k_cl$cluster)
+library(NbClust)
+res.nb<-NbClust(pmatrix,min.nc = 2,max.nc = 10,method = "complete")
